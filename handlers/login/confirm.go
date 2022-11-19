@@ -103,8 +103,9 @@ func Confirm(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"ok":      true,
-		"session": adminSession,
+		"ok":       true,
+		"session":  adminSession,
+		"username": username,
 	})
 
 }

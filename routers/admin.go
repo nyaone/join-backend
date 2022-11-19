@@ -10,10 +10,11 @@ func Admin(rg *gin.RouterGroup) {
 	rg.GET("/code/list", admin.CodeList)
 	rg.POST("/code/create", admin.CodeCreate)
 	rg.PUT("/code/edit/:code", admin.CodeEdit)
-	
+
 	rg.GET("/invitee/count", admin.InviteeCount)
 	rg.GET("/invitee/list", admin.InviteeList)
 	rg.GET("/invitee/list/:code", admin.InviteeList)
 
+	rg.GET("/check", admin.SessionCheck)
 	rg.DELETE("/logout", admin.Logout)
 }
