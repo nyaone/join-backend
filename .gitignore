@@ -1,0 +1,12 @@
+# IDE specified
+.idea/
+
+# Build & debug artifacts
+*.exe
+
+# Configurations
+config.yml
+
+# Data
+db/
+redis/

@@ -1,0 +1,10 @@
+frontend_uri: "https://join.nya.one"
+system:
+  debug: true
+  postgres: "postgres://nyaone:join+nya.1@db:5432/join"
+  redis: "redis://redis:6379/0"
+misskey:
+  instance: "https://nya.one"
+  token:
+    admin: ""
+    notify: ""
