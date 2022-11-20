@@ -72,6 +72,8 @@ func Request(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
+		// Remove session & secret
+		global.Redis.Del(context.Background(), sessionKey)
 		return
 	}
 
