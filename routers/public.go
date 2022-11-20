@@ -7,4 +7,5 @@ import (
 
 func Public(rg *gin.RouterGroup) {
 	rg.GET("/healthcheck", public.HealthCheck)
+	rg.GET("/instance", public.Instance)
 }
