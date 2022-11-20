@@ -11,6 +11,7 @@ import (
 	"join-nyaone/utils"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func Request(ctx *gin.Context) {
@@ -31,11 +32,20 @@ func Request(ctx *gin.Context) {
 		return
 	}
 
-	// Get user ID
-	userid, err := misskey.GetUserID(username)
+	// Get user info
+	userInfo, err := misskey.GetUser(username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
+		})
+		return
+	}
+
+	// Check if is in cool-down period
+	if time.Now().Before(userInfo.CreatedAt.Add(consts.TIME_NEW_USER_SEND_INVITATION_AFTER)) {
+		// Not yet
+		ctx.JSON(http.StatusTooEarly, gin.H{
+			"error": "Please wait for 24 hours before invite others.",
 		})
 		return
 	}
@@ -57,7 +67,7 @@ func Request(ctx *gin.Context) {
 	token := fmt.Sprintf("%s-%s", username, secret)
 	link := fmt.Sprintf("%s/login/%s", config.Config.FrontendUri, token)
 	text := fmt.Sprintf(consts.MESSAGE_TEMPLATE, link)
-	sendMsgRes, err := misskey.SendMessage(userid, text)
+	sendMsgRes, err := misskey.SendMessage(userInfo.ID, text)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),

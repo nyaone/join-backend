@@ -7,6 +7,7 @@ import (
 	"join-nyaone/config"
 	"join-nyaone/global"
 	"net/http"
+	"time"
 )
 
 type UserShow_Request struct {
@@ -15,14 +16,15 @@ type UserShow_Request struct {
 }
 
 type UserShow_Response struct {
-	ID string `json:"id"`
+	ID        string    `json:"id"`
+	CreatedAt time.Time `json:"createdAt"` // Register time
 	// Ignore others
 }
 
-func GetUserID(username string) (string, error) {
+func GetUser(username string) (*UserShow_Response, error) {
 	// Check format
 	if !usernameRegex.MatchString(username) {
-		return "", fmt.Errorf("invalid username format")
+		return nil, fmt.Errorf("invalid username format")
 	}
 
 	// Prepare request
@@ -33,20 +35,20 @@ func GetUserID(username string) (string, error) {
 	})
 	if err != nil {
 		global.Logger.Errorf("Failed to marshall request body with error: %v", err)
-		return "", err
+		return nil, err
 	}
 
 	req, err := http.NewRequest("POST", apiEndpoint, bytes.NewReader(reqBodyBytes))
 	if err != nil {
 		global.Logger.Errorf("Failed to prepare request with error: %v", err)
-		return "", err
+		return nil, err
 	}
 
 	// Do request
 	res, err := (&http.Client{}).Do(req)
 	if err != nil {
 		global.Logger.Errorf("Failed to finish request with error: %v", err)
-		return "", err
+		return nil, err
 	}
 
 	// Parse response
@@ -55,20 +57,20 @@ func GetUserID(username string) (string, error) {
 		err = json.NewDecoder(res.Body).Decode(&resBody)
 		if err != nil {
 			global.Logger.Errorf("Failed to decode response body with error: %v", err)
-			return "", err
+			return nil, err
 		}
 
-		return resBody.ID, nil
+		return &resBody, nil
 	} else {
 		global.Logger.Errorf("Request failed.")
 		var errBody Error_Response
 		err = json.NewDecoder(res.Body).Decode(&errBody)
 		if err != nil {
 			global.Logger.Errorf("Failed to decode error body with error: %v", err)
-			return "", err
+			return nil, err
 		}
 
 		global.Logger.Errorf("Failed details: %v", errBody)
-		return "", fmt.Errorf(errBody.Error.Message)
+		return nil, fmt.Errorf(errBody.Error.Message)
 	}
 }

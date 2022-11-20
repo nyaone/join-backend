@@ -16,5 +16,5 @@ func TestGetUserID(t *testing.T) {
 	config.Config.Misskey.Instance = "https://mk.nyawork.dev"
 	username := "admin"
 
-	t.Log(GetUserID(username))
+	t.Log(GetUser(username))
 }
