@@ -26,7 +26,7 @@ func Request(ctx *gin.Context) {
 		})
 		return
 	} else if exist > 0 {
-		ctx.JSON(http.StatusUnauthorized, gin.H{
+		ctx.JSON(http.StatusTooManyRequests, gin.H{
 			"error": "Session already exist.",
 		})
 		return
