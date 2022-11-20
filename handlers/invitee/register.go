@@ -67,7 +67,7 @@ func Register(ctx *gin.Context) {
 	invitee := models.User{
 		User: types.User{
 			Username:        newAccount.Username,
-			InvitedByCodeID: targetInviteCode.ID,
+			InvitedByCode:   targetInviteCode.Code.Code,
 			InvitedByUserID: targetInviteCode.CreatedByUserID,
 		},
 	}

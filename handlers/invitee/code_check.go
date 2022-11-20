@@ -46,27 +46,33 @@ func CheckInviteCodeStatus(codeUUIDStr string) (bool, int, *models.Code, error) 
 	}
 
 	// 3. Check valid
+	isValid, _ := CheckInviteCodeValid(&targetCode)
+
+	return isValid, 0, &targetCode, nil
+}
+
+func CheckInviteCodeValid(targetCode *models.Code) (bool, int64) {
 	//// 3.1. Check if disabled by admin
 	if !targetCode.IsActivate {
 		// Inactive
-		return false, 0, &targetCode, nil
+		return false, 0
 	}
 	//// 3.2. Check time period
 	nowTime := time.Now()
 	if targetCode.RegisterTimeStart.After(nowTime) || (targetCode.IsRegisterTimeEndValid && targetCode.RegisterTimeEnd.Before(nowTime)) {
 		// Exceeds acceptable time
-		return false, 0, &targetCode, nil
+		return false, 0
 	}
 	//// 3.3. Check not exceeds max register limit
+	var registeredCountWithThisCode int64
 	if targetCode.RegisterCountLimit > 0 {
-		var registeredCountWithThisCode int64
-		global.DB.Model(&models.User{}).Where("invited_by_code_id = ?", targetCode.ID).Count(&registeredCountWithThisCode)
+		global.DB.Model(&models.User{}).Where("invited_by_code = ?", targetCode.Code.Code).Count(&registeredCountWithThisCode)
 
 		if registeredCountWithThisCode >= targetCode.RegisterCountLimit {
 			// Exceeds maximum register limit
-			return false, 0, &targetCode, nil
+			return false, registeredCountWithThisCode
 		}
 	}
 
-	return true, 0, &targetCode, nil
+	return true, registeredCountWithThisCode
 }

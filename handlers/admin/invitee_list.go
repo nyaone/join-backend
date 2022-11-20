@@ -54,7 +54,7 @@ func InviteeList(ctx *gin.Context) {
 		}
 
 		// Add additional conditions
-		query = query.Where("invited_by_code_id = ?", targetCode.ID)
+		query = query.Where("invited_by_code = ?", targetCode.Code.Code)
 	} else {
 		// Just user (list all)
 		query = query.Where("invited_by_user_id = ?", userId.(uint))
@@ -65,9 +65,9 @@ func InviteeList(ctx *gin.Context) {
 
 	for _, invitee := range invitees {
 		responseInvitees = append(responseInvitees, InviteesResponse{
-			RegisteredAt:    invitee.CreatedAt,
-			Username:        invitee.Username,
-			InvitedByCodeID: invitee.InvitedByCodeID,
+			RegisteredAt:  invitee.CreatedAt,
+			Username:      invitee.Username,
+			InvitedByCode: invitee.InvitedByCode.String(),
 		})
 	}
 

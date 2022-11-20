@@ -6,16 +6,16 @@ import (
 )
 
 type CodeResponse struct {
-	ID   uint   `json:"id"`
 	Code string `json:"code"`
 	types.CodeProps
 
 	InviteCount int64 `json:"invite_count"`
+	IsValid     bool  `json:"is_valid"`
 }
 
 type InviteesResponse struct {
 	RegisteredAt time.Time `json:"registered_at"`
 
-	Username        string `json:"username"`
-	InvitedByCodeID uint   `json:"invited_by_code"`
+	Username      string `json:"username"`
+	InvitedByCode string `json:"invited_by_code"`
 }

@@ -7,7 +7,7 @@ import (
 
 type Code struct {
 	// Invite code itself
-	Code uuid.UUID `gorm:"uniqueIndex;type:uuid;default:gen_random_uuid()"`
+	Code uuid.UUID `gorm:"primarykey;type:uuid;default:gen_random_uuid()"`
 
 	// Who created this code
 	CreatedByUserID uint `gorm:"index;column:created_by_user_id"`

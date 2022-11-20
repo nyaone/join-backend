@@ -3,6 +3,7 @@ package admin
 import (
 	"github.com/gin-gonic/gin"
 	"join-nyaone/global"
+	"join-nyaone/handlers/invitee"
 	"join-nyaone/models"
 	"join-nyaone/types"
 	"net/http"
@@ -45,10 +46,11 @@ func CodeCreate(ctx *gin.Context) {
 	}
 
 	// All success
+	isValid, inviteCount := invitee.CheckInviteCodeValid(&targetCode)
 	ctx.JSON(http.StatusOK, CodeResponse{
-		ID:          targetCode.ID,
 		Code:        targetCode.Code.Code.String(),
 		CodeProps:   targetCode.CodeProps,
-		InviteCount: 0,
+		InviteCount: inviteCount,
+		IsValid:     isValid,
 	})
 }

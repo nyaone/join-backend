@@ -3,6 +3,7 @@ package admin
 import (
 	"github.com/gin-gonic/gin"
 	"join-nyaone/global"
+	"join-nyaone/handlers/invitee"
 	"join-nyaone/models"
 	"net/http"
 )
@@ -22,14 +23,13 @@ func CodeList(ctx *gin.Context) {
 	global.DB.Find(&inviteCodes, "created_by_user_id = ?", userId.(uint))
 
 	for _, inviteCode := range inviteCodes {
-		var registeredCountWithThisCode int64
-		global.DB.Model(&models.User{}).Where("invited_by_code_id = ?", inviteCode.ID).Count(&registeredCountWithThisCode)
 
+		isValid, inviteCount := invitee.CheckInviteCodeValid(&inviteCode)
 		responseCodes = append(responseCodes, CodeResponse{
-			ID:          inviteCode.ID,
 			Code:        inviteCode.Code.Code.String(),
 			CodeProps:   inviteCode.CodeProps,
-			InviteCount: registeredCountWithThisCode,
+			InviteCount: inviteCount,
+			IsValid:     isValid,
 		})
 	}
 
