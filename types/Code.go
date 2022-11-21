@@ -28,4 +28,5 @@ type CodeProps struct {
 	RegisterTimeStart      time.Time `json:"register_time_start"`  // Start from now if not specified
 	RegisterTimeEnd        time.Time `json:"register_time_end"`
 	IsRegisterTimeEndValid bool      `json:"is_register_time_end_valid"` // Set to false if ends time is not limited
+	RegisterCoolDown       uint      `json:"register_cool_down"`         // In seconds, 0 means no cooldown
 }

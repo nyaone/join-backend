@@ -6,9 +6,9 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"join-nyaone/global"
-	"join-nyaone/handlers/invitee"
 	"join-nyaone/models"
 	"join-nyaone/types"
+	"join-nyaone/utils"
 	"net/http"
 )
 
@@ -72,7 +72,7 @@ func CodeEdit(ctx *gin.Context) {
 	}
 
 	// All success
-	isValid, inviteCount := invitee.CheckInviteCodeValid(&targetCode)
+	isValid, inviteCount := utils.CheckInviteCodeValid(&targetCode)
 	ctx.JSON(http.StatusOK, CodeResponse{
 		Code:        targetCode.Code.Code.String(),
 		CodeProps:   targetCode.CodeProps,

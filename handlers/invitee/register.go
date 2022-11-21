@@ -1,13 +1,17 @@
 package invitee
 
 import (
+	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"join-nyaone/config"
+	"join-nyaone/consts"
 	"join-nyaone/global"
 	"join-nyaone/misskey"
 	"join-nyaone/models"
 	"join-nyaone/types"
 	"net/http"
+	"time"
 )
 
 type RegisterRequest struct {
@@ -73,6 +77,12 @@ func Register(ctx *gin.Context) {
 	}
 
 	global.DB.Create(&invitee)
+
+	// Set code cool-down
+	if targetInviteCode.RegisterCoolDown > 0 {
+		inviteCDKey := fmt.Sprintf(consts.REDIS_KEY_REGISTER_CODE_CD, targetInviteCode.Code.Code.String())
+		global.Redis.Set(context.Background(), inviteCDKey, invitee.ID, time.Duration(targetInviteCode.RegisterCoolDown)*time.Second)
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"ok":       true,

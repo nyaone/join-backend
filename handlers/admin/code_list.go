@@ -3,8 +3,8 @@ package admin
 import (
 	"github.com/gin-gonic/gin"
 	"join-nyaone/global"
-	"join-nyaone/handlers/invitee"
 	"join-nyaone/models"
+	"join-nyaone/utils"
 	"net/http"
 )
 
@@ -24,7 +24,7 @@ func CodeList(ctx *gin.Context) {
 
 	for _, inviteCode := range inviteCodes {
 
-		isValid, inviteCount := invitee.CheckInviteCodeValid(&inviteCode)
+		isValid, inviteCount := utils.CheckInviteCodeValid(&inviteCode)
 		responseCodes = append(responseCodes, CodeResponse{
 			Code:        inviteCode.Code.Code.String(),
 			CodeProps:   inviteCode.CodeProps,

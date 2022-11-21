@@ -8,8 +8,8 @@ import (
 	"gorm.io/gorm"
 	"join-nyaone/global"
 	"join-nyaone/models"
+	"join-nyaone/utils"
 	"net/http"
-	"time"
 )
 
 func CodeCheck(ctx *gin.Context) {
@@ -46,34 +46,7 @@ func CheckInviteCodeStatus(codeUUIDStr string) (bool, int, *models.Code, error) 
 	}
 
 	// 3. Check valid
-	isValid, _ := CheckInviteCodeValid(&targetCode)
+	isValid, _ := utils.CheckInviteCodeValid(&targetCode)
 
 	return isValid, 0, &targetCode, nil
-}
-
-func CheckInviteCodeValid(targetCode *models.Code) (bool, int64) {
-	var registeredCountWithThisCode int64
-	global.DB.Model(&models.User{}).Where("invited_by_code = ?", targetCode.Code.Code).Count(&registeredCountWithThisCode)
-
-	//// 3.1. Check if disabled by admin
-	if !targetCode.IsActivate {
-		// Inactive
-		return false, registeredCountWithThisCode
-	}
-	//// 3.2. Check time period
-	nowTime := time.Now()
-	if targetCode.RegisterTimeStart.After(nowTime) || (targetCode.IsRegisterTimeEndValid && targetCode.RegisterTimeEnd.Before(nowTime)) {
-		// Exceeds acceptable time
-		return false, registeredCountWithThisCode
-	}
-	//// 3.3. Check not exceeds max register limit
-	if targetCode.RegisterCountLimit > 0 {
-
-		if registeredCountWithThisCode >= targetCode.RegisterCountLimit {
-			// Exceeds maximum register limit
-			return false, registeredCountWithThisCode
-		}
-	}
-
-	return true, registeredCountWithThisCode
 }
