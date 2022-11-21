@@ -39,8 +39,8 @@ func InviteeList(ctx *gin.Context) {
 		}
 
 		var targetCode models.Code
-		err = global.DB.First(&targetCode, "code = ?", codeUUID).Error
-		if errors.Is(err, gorm.ErrRecordNotFound) || targetCode.CreatedByUserID != userId {
+		err = global.DB.First(&targetCode, "code = ? AND created_by_user_id = ?", codeUUID, userId).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": "No such code",
 			})
