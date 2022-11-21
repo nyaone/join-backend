@@ -9,8 +9,9 @@ type CodeResponse struct {
 	Code string `json:"code"`
 	types.CodeProps
 
-	InviteCount int64 `json:"invite_count"`
-	IsValid     bool  `json:"is_valid"`
+	InviteCount   int64  `json:"invite_count"`
+	IsValid       bool   `json:"is_valid"`
+	InvalidReason string `json:"invalid_reason"`
 }
 
 type InviteesResponse struct {

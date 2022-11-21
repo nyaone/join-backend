@@ -24,12 +24,13 @@ func CodeList(ctx *gin.Context) {
 
 	for _, inviteCode := range inviteCodes {
 
-		isValid, inviteCount := utils.CheckInviteCodeValid(&inviteCode)
+		isValid, inviteCount, invalidReason := utils.CheckInviteCodeValid(&inviteCode)
 		responseCodes = append(responseCodes, CodeResponse{
-			Code:        inviteCode.Code.Code.String(),
-			CodeProps:   inviteCode.CodeProps,
-			InviteCount: inviteCount,
-			IsValid:     isValid,
+			Code:          inviteCode.Code.Code.String(),
+			CodeProps:     inviteCode.CodeProps,
+			InviteCount:   inviteCount,
+			IsValid:       isValid,
+			InvalidReason: invalidReason,
 		})
 	}
 

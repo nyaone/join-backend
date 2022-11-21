@@ -31,7 +31,7 @@ func Register(ctx *gin.Context) {
 	}
 
 	// Check invite code
-	isInviteCodeValid, errCode, targetInviteCode, err := CheckInviteCodeStatus(req.InviteCode)
+	isInviteCodeValid, errCode, targetInviteCode, invalidReason, err := CheckInviteCodeStatus(req.InviteCode)
 	if err != nil {
 		ctx.JSON(errCode, gin.H{
 			"error": err.Error(),
@@ -39,7 +39,7 @@ func Register(ctx *gin.Context) {
 		return
 	} else if !isInviteCodeValid {
 		ctx.JSON(http.StatusOK, gin.H{
-			"error": "Sorry, this invite code is invalid.",
+			"error": fmt.Sprintf("Sorry, this invite code is invalid: %s", invalidReason),
 		})
 		return
 	}

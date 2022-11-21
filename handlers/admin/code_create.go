@@ -46,11 +46,12 @@ func CodeCreate(ctx *gin.Context) {
 	}
 
 	// All success
-	isValid, inviteCount := utils.CheckInviteCodeValid(&targetCode)
+	isValid, inviteCount, invalidReason := utils.CheckInviteCodeValid(&targetCode)
 	ctx.JSON(http.StatusOK, CodeResponse{
-		Code:        targetCode.Code.Code.String(),
-		CodeProps:   targetCode.CodeProps,
-		InviteCount: inviteCount,
-		IsValid:     isValid,
+		Code:          targetCode.Code.Code.String(),
+		CodeProps:     targetCode.CodeProps,
+		InviteCount:   inviteCount,
+		IsValid:       isValid,
+		InvalidReason: invalidReason,
 	})
 }

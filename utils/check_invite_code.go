@@ -9,27 +9,27 @@ import (
 	"time"
 )
 
-func CheckInviteCodeValid(targetCode *models.Code) (bool, int64) {
+func CheckInviteCodeValid(targetCode *models.Code) (bool, int64, string) {
 	var registeredCountWithThisCode int64
 	global.DB.Model(&models.User{}).Where("invited_by_code = ?", targetCode.Code.Code).Count(&registeredCountWithThisCode)
 
 	//// 3.1. Check if disabled by admin
 	if !targetCode.IsActivate {
 		// Inactive
-		return false, registeredCountWithThisCode
+		return false, registeredCountWithThisCode, "Manually disabled"
 	}
 	//// 3.2. Check time period
 	nowTime := time.Now()
 	if targetCode.RegisterTimeStart.After(nowTime) || (targetCode.IsRegisterTimeEndValid && targetCode.RegisterTimeEnd.Before(nowTime)) {
 		// Exceeds acceptable time
-		return false, registeredCountWithThisCode
+		return false, registeredCountWithThisCode, "Not in limited time period"
 	}
 	//// 3.3. Check not exceeds max register limit
 	if targetCode.RegisterCountLimit > 0 {
 
 		if registeredCountWithThisCode >= targetCode.RegisterCountLimit {
 			// Exceeds maximum register limit
-			return false, registeredCountWithThisCode
+			return false, registeredCountWithThisCode, "Exceeds maximum register limit"
 		}
 	}
 
@@ -41,12 +41,12 @@ func CheckInviteCodeValid(targetCode *models.Code) (bool, int64) {
 			// Failed to check
 			global.Logger.Errorf("Failed to check code cd in redis")
 			// Maybe just ignore?
-			return true, registeredCountWithThisCode
+			return true, registeredCountWithThisCode, ""
 		} else if exist > 0 {
 			// Nope, it's in cd
-			return false, registeredCountWithThisCode
+			return false, registeredCountWithThisCode, "Code in cool-down period"
 		}
 	}
 
-	return true, registeredCountWithThisCode
+	return true, registeredCountWithThisCode, ""
 }
