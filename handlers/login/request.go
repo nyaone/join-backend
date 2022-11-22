@@ -66,7 +66,7 @@ func Request(ctx *gin.Context) {
 	// Send message
 	token := fmt.Sprintf("%s-%s", username, secret)
 	link := fmt.Sprintf("%s/login/%s", config.Config.FrontendUri, token)
-	text := fmt.Sprintf(consts.MESSAGE_TEMPLATE, link)
+	text := fmt.Sprintf(consts.MESSAGE_TEMPLATE_LOGIN, link)
 	sendMsgRes, err := misskey.SendMessage(userInfo.ID, text)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{

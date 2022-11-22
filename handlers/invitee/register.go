@@ -84,6 +84,12 @@ func Register(ctx *gin.Context) {
 		global.Redis.Set(context.Background(), inviteCDKey, invitee.ID, time.Duration(targetInviteCode.RegisterCoolDown)*time.Second)
 	}
 
+	// Send welcome message
+	_, err = misskey.NotesCreate(fmt.Sprintf(consts.MESSAGE_TEMPLATE_REGISTER, newAccount.Username))
+	if err != nil {
+		global.Logger.Errorf("Failed to send welcome message to %s with error: %v", newAccount.Username, err)
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"ok":       true,
 		"username": newAccount.Username,
