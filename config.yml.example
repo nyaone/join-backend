@@ -1,10 +1,10 @@
-frontend_uri: "https://join.nya.one"
+frontend_uri: "https://join.nya.one" # 指向 https://github.com/nyaone/join-frontend 项目部署所在网页的地址
 system:
-  debug: true
-  postgres: "postgres://nyaone:join+nya.1@db:5432/join"
-  redis: "redis://redis:6379/0"
+  debug: false # 开启调试模式，生产环境中请保持此项关闭
+  postgres: "postgres://nyaone:join+nya.1@db:5432/join" # 程式 Postgres 数据库的连接地址，如使用仓库自带的 docker-compose.yml 方案部署则无需改动
+  redis: "redis://redis:6379/0" # 程式 Redis 数据库的连接地址，如使用仓库自带的 docker-compose.yml 方案部署则无需改动
 misskey:
-  instance: "https://nya.one"
+  instance: "https://nya.one" # 您的目标实例地址，暂时不支持使用内网链接
   token:
-    admin: ""
-    notify: ""
+    admin: "" # 您的管理员权限账号的访问令牌
+    notify: "" # 您的一般用户账号的访问令牌
