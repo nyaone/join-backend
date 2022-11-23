@@ -14,7 +14,7 @@ func TestCheckToken(t *testing.T) {
 	global.Logger = logger.Sugar()
 
 	config.Config.Misskey.Instance = "https://mk.nyawork.dev"
-	token := "n87yFsH5Smv9ybWQcfLKaDpOHtjwkIRT"
+	token := ""
 
 	t.Log(CheckToken(token))
 }
