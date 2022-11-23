@@ -1,3 +1,9 @@
+include:
+  - template: Security/SAST.gitlab-ci.yml
+
+sast:
+  stage: .pre
+
 stages:
   - build
 
