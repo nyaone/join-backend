@@ -69,9 +69,9 @@ func InviteeList(ctx *gin.Context) {
 	global.DB.Find(&allInviteCodes, "created_by_user_id = ?", userId.(uint))
 
 	// Create a map for quick lookup
-	inviteCodeMap := make(map[uuid.UUID]*models.Code)
-	for _, c := range allInviteCodes {
-		inviteCodeMap[c.Code.Code] = &c
+	inviteCodeMap := make(map[uuid.UUID]int)
+	for index, c := range allInviteCodes {
+		inviteCodeMap[c.Code.Code] = index
 	}
 
 	for _, invitee := range invitees {
@@ -79,8 +79,8 @@ func InviteeList(ctx *gin.Context) {
 			RegisteredAt: invitee.CreatedAt,
 			Username:     invitee.Username,
 		}
-		if c, ok := inviteCodeMap[invitee.InvitedByCode]; ok {
-			inviteeDetail.InvitedByCode = c.Comment
+		if codeIndex, ok := inviteCodeMap[invitee.InvitedByCode]; ok {
+			inviteeDetail.InvitedByCode = allInviteCodes[codeIndex].Comment
 		} else {
 			inviteeDetail.InvitedByCode = fmt.Sprintf("Unknown %s", invitee.InvitedByCode.String())
 		}
