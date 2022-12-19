@@ -2,6 +2,7 @@ package admin
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -63,12 +64,27 @@ func InviteeList(ctx *gin.Context) {
 	// Find results
 	query.Find(&invitees)
 
+	// Get all invite codes
+	var allInviteCodes []models.Code
+	global.DB.Find(&allInviteCodes, "created_by_user_id = ?", userId.(uint))
+
+	// Create a map for quick lookup
+	var inviteCodeMap map[uuid.UUID]*models.Code
+	for _, c := range allInviteCodes {
+		inviteCodeMap[c.Code.Code] = &c
+	}
+
 	for _, invitee := range invitees {
-		responseInvitees = append(responseInvitees, InviteesResponse{
-			RegisteredAt:  invitee.CreatedAt,
-			Username:      invitee.Username,
-			InvitedByCode: invitee.InvitedByCode.String(),
-		})
+		inviteeDetail := InviteesResponse{
+			RegisteredAt: invitee.CreatedAt,
+			Username:     invitee.Username,
+		}
+		if c, ok := inviteCodeMap[invitee.InvitedByCode]; ok {
+			inviteeDetail.InvitedByCode = c.Comment
+		} else {
+			inviteeDetail.InvitedByCode = fmt.Sprintf("Unknown %s", invitee.InvitedByCode.String())
+		}
+		responseInvitees = append(responseInvitees, inviteeDetail)
 	}
 
 	ctx.JSON(http.StatusOK, responseInvitees)
