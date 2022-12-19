@@ -69,7 +69,7 @@ func InviteeList(ctx *gin.Context) {
 	global.DB.Find(&allInviteCodes, "created_by_user_id = ?", userId.(uint))
 
 	// Create a map for quick lookup
-	var inviteCodeMap map[uuid.UUID]*models.Code
+	inviteCodeMap := make(map[uuid.UUID]*models.Code)
 	for _, c := range allInviteCodes {
 		inviteCodeMap[c.Code.Code] = &c
 	}
