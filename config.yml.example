@@ -6,5 +6,5 @@ system:
 misskey:
   instance: "https://nya.one" # 您的目标实例地址，暂时不支持使用内网链接
   token:
-    admin: "" # 您的管理员权限账号的访问令牌
-    notify: "" # 您的一般用户账号的访问令牌
+    admin: "" # 管理员权限账号的访问令牌
+    notify: "" # 用于发送迎新消息的账号的访问令牌
