@@ -40,6 +40,7 @@ func mig() error {
 	err := global.DB.AutoMigrate(
 		&models.User{},
 		&models.Code{},
+		&models.Application{},
 	)
 	if err != nil {
 		return err

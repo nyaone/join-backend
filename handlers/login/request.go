@@ -2,85 +2,86 @@ package login
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"join-nyaone/config"
 	"join-nyaone/consts"
 	"join-nyaone/global"
 	"join-nyaone/misskey"
-	"join-nyaone/utils"
+	"join-nyaone/models"
+	"join-nyaone/types"
 	"net/http"
-	"strings"
-	"time"
 )
 
 func Request(ctx *gin.Context) {
-	username := strings.ToLower(ctx.Param("username"))
 
-	// Check if in redis
-	sessionKey := fmt.Sprintf(consts.REDIS_KEY_LOGIN_REQUEST, username)
-	if exist, err := global.Redis.Exists(context.Background(), sessionKey).Result(); err != nil {
-		global.Logger.Errorf("Failed to check session key (%s) from redis with error: %v", sessionKey, err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": fmt.Sprintf("Failed to check session from redis: %s", err.Error()),
-		})
-		return
-	} else if exist > 0 {
-		ctx.JSON(http.StatusTooManyRequests, gin.H{
-			"error": "Session already exist.",
-		})
-		return
+	// Check current application. If not exist, create one.
+	var app models.Application
+	if err := global.DB.First(&app, "instance_uri = ? AND frontend_uri = ?", config.Config.Misskey.Instance, config.Config.FrontendUri).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// No matching application, create one
+
+			// Init meta information
+			app.InstanceUri = config.Config.Misskey.Instance
+			app.FrontendUri = config.Config.FrontendUri
+			app.ApplicationPublic = types.ApplicationPublic{
+				Name:        "Join NyaOne",
+				Description: "喵窝邀请管理系统",
+				Permission: []string{
+					"read:account",
+				},
+				CallbackURL: fmt.Sprintf("%s/login", config.Config.FrontendUri),
+			}
+
+			// Get specified
+			newApp, err := misskey.CreateApplication(&app.ApplicationPublic)
+			if err != nil {
+				global.Logger.Errorf("Failed to create auth application with error: %v", err)
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"error": "Failed to create auth application, please contact admin for help.",
+				})
+				return
+			}
+			app.ApplicationPrivate = newApp.ApplicationPrivate
+
+			// Save into database
+			if err = global.DB.Save(&app).Error; err != nil {
+				global.Logger.Errorf("Failed to save auth application %v into database with error: %v", app, err)
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"error": "Failed to create auth application, please contact admin for help.",
+				})
+				return
+			}
+		} else {
+			// Other errors
+			global.Logger.Errorf("Failed to check auth application from database with error: %v", err)
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to check auth application, please contact admin for help.",
+			})
+			return
+		}
 	}
 
-	// Get user info
-	userInfo, err := misskey.GetUser(username)
+	// Create auth request
+	sess, err := misskey.GenerateAuthSession(app.Secret)
 	if err != nil {
+		global.Logger.Errorf("Failed to generate auth session with error: %v", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
+			"error": "Failed to generate auth session, please contact admin for help.",
 		})
 		return
 	}
 
-	// Check if is in cool-down period
-	if time.Now().Before(userInfo.CreatedAt.Add(consts.TIME_NEW_USER_SEND_INVITATION_AFTER)) {
-		// Not yet
-		ctx.JSON(http.StatusTooEarly, gin.H{
-			"error": "Please wait for 24 hours before invite others.",
-		})
-		return
-	}
-
-	// Prepare login secret
-	secret := utils.RandString(8)
-
-	// Save secret to redis
-	err = global.Redis.Set(context.Background(), sessionKey, secret, consts.TIME_LOGIN_REQUEST_VALID).Err()
-	if err != nil {
-		global.Logger.Errorf("Failed to save session secret (%s) into redis with error: %v", sessionKey, err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-
-	// Send message
-	token := fmt.Sprintf("%s-%s", username, secret)
-	link := fmt.Sprintf("%s/login/%s", config.Config.FrontendUri, token)
-	text := fmt.Sprintf(consts.MESSAGE_TEMPLATE_LOGIN, link)
-	sendMsgRes, err := misskey.SendMessage(userInfo.ID, text)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		// Remove session & secret
-		global.Redis.Del(context.Background(), sessionKey)
-		return
-	}
+	// Save into redis
+	sessionKey := fmt.Sprintf(consts.REDIS_KEY_LOGIN_REQUEST, sess.Token)
+	err = global.Redis.Set(context.Background(), sessionKey, app.Secret, consts.TIME_LOGIN_REQUEST_VALID).Err()
 
 	// Return true
 	ctx.JSON(http.StatusOK, gin.H{
-		"ok":             true,
-		"messaging_link": fmt.Sprintf("%s/my/messaging/%s", config.Config.Misskey.Instance, sendMsgRes.User.Username),
+		"ok":  true,
+		"url": sess.Url,
 	})
 
 }

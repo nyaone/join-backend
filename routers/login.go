@@ -6,6 +6,6 @@ import (
 )
 
 func Login(rg *gin.RouterGroup) {
-	rg.POST("/request/:username", login.Request)
+	rg.POST("/request", login.Request)
 	rg.POST("/confirm/:token", login.Confirm)
 }

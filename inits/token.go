@@ -12,7 +12,7 @@ func Token() error {
 	// Check token
 	if adminTokenRes, err := misskey.CheckToken(config.Config.Misskey.Token.Admin); err != nil {
 		return fmt.Errorf("misskey admin token is not working: %v", err)
-	} else if !adminTokenRes.IsAdmin {
+	} else if !*adminTokenRes.IsAdmin {
 		return fmt.Errorf("misskey admin should have admin permission")
 	} else {
 		global.Logger.Debugf("Admin token initialized, I'm %s (%s)", adminTokenRes.Name, adminTokenRes.Username)
