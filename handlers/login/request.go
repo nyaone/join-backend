@@ -29,9 +29,7 @@ func Request(ctx *gin.Context) {
 			app.ApplicationPublic = types.ApplicationPublic{
 				Name:        "Join NyaOne",
 				Description: "喵窝邀请管理系统",
-				Permission: []string{
-					"read:account",
-				},
+				Permission:  []string{},
 				CallbackURL: fmt.Sprintf("%s/login", config.Config.FrontendUri),
 			}
 
