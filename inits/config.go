@@ -2,7 +2,7 @@ package inits
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"join-nyaone/config"
 	"join-nyaone/utils"
 	"os"
