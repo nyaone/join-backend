@@ -14,8 +14,8 @@ type MisskeyUser struct {
 	Username    string    `json:"username"`
 	AvatarUrl   string    `json:"avatarUrl"`
 	CreatedAt   time.Time `json:"createdAt"`
-	IsAdmin     *bool     `json:"isAdmin"`
-	IsModerator *bool     `json:"isModerator"`
+	IsAdmin     bool      `json:"isAdmin"`
+	IsModerator bool      `json:"isModerator"`
 	// Ignore other fields
 }
 
