@@ -4,7 +4,7 @@ services:
 
   db:
     image: postgres:15-alpine
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: "nyaone"
       POSTGRES_PASSWORD: "join+nya.1"
@@ -15,6 +15,6 @@ services:
 
   redis:
     image: redis:alpine
-    restart: always
+    restart: unless-stopped
     ports:
       - 127.0.0.1:6379:6379
